@@ -1,25 +1,34 @@
+import logging
 from fastapi import FastAPI
-from app.database import engine
-from app import models
-from app.routes import users, posts, likes, follows
+from fastapi.middleware.cors import CORSMiddleware
+from app.database import engine, Base
+from app.routes import users, posts, follows, feed
 
-# Create FastAPI app
-app = FastAPI(
-    title="Social Media API",
-    version="1.0.0",
-    description="FastAPI backend with JWT authentication"
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
-# Create database tables
-models.Base.metadata.create_all(bind=engine)
+logger = logging.getLogger(__name__)
 
-# Include routers
-app.include_router(users.router, prefix="/users", tags=["Users"])
+Base.metadata.create_all(bind=engine)
+logger.info("Database tables created")
+
+app = FastAPI(title="Social Media API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(users.router, prefix="/auth", tags=["Auth"])
 app.include_router(posts.router, prefix="/posts", tags=["Posts"])
-app.include_router(likes.router, prefix="/likes", tags=["Likes"])
-app.include_router(follows.router, prefix="/follows", tags=["Follows"])
+app.include_router(follows.router, prefix="/follow", tags=["Follow"])
+app.include_router(feed.router, prefix="/feed", tags=["Feed"])
 
-# Health check
 @app.get("/")
 def root():
-    return {"message": "API is running"}
+    logger.info("Root endpoint hit")
+    return {"message": "Social Media API is running!"}
