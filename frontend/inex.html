@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINI— Social</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #13131a;
+            --surface2: #1c1c26;
+            --border: #2a2a38;
+            --accent: #7c6aff;
+            --accent2: #ff6a8a;
+            --text: #f0f0ff;
+            --muted: #6b6b8a;
+            --success: #4ade80;
+            --error: #ff4d6d;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+        body::before { content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(ellipse at 20% 20%, rgba(124,106,255,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(255,106,138,0.06) 0%, transparent 50%); pointer-events: none; z-index: 0; }
+        #authPage { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; position: relative; z-index: 1; }
+        .auth-box { width: 100%; max-width: 420px; }
+        .brand { text-align: center; margin-bottom: 40px; }
+        .brand h1 { font-family: 'Syne', sans-serif; font-size: 42px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -1px; }
+        .brand p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+        .auth-tabs { display: flex; background: var(--surface); border-radius: 12px; padding: 4px; margin-bottom: 24px; border: 1px solid var(--border); }
+        .auth-tab { flex: 1; padding: 10px; border: none; background: transparent; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: all 0.2s; }
+        .auth-tab.active { background: var(--accent); color: white; }
+        .auth-form { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 28px; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+        .form-group input { width: 100%; padding: 12px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
+        .form-group input:focus { border-color: var(--accent); }
+        .btn-primary { width: 100%; padding: 13px; background: linear-gradient(135deg, var(--accent), #9b84ff); border: none; border-radius: 10px; color: white; font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s, transform 0.1s; margin-top: 8px; }
+        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+        #toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 20px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 999; transform: translateY(80px); opacity: 0; transition: all 0.3s ease; max-width: 320px; }
+        #toast.show { transform: translateY(0); opacity: 1; }
+        #toast.success { background: #1a3a2a; border: 1px solid var(--success); color: var(--success); }
+        #toast.error { background: #3a1a22; border: 1px solid var(--error); color: var(--error); }
+        #appPage { display: none; min-height: 100vh; position: relative; z-index: 1; }
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; z-index: 10; }
+        .sidebar-brand { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 32px; padding: 0 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px 12px; border-radius: 10px; cursor: pointer; color: var(--muted); font-size: 14px; font-weight: 500; transition: all 0.2s; margin-bottom: 4px; border: none; background: transparent; width: 100%; text-align: left; }
+        .nav-item:hover { background: var(--surface2); color: var(--text); }
+        .nav-item.active { background: rgba(124,106,255,0.15); color: var(--accent); }
+        .nav-icon { font-size: 18px; }
+        .sidebar-footer { margin-top: auto; }
+        .user-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+        .user-badge .name { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
+        .user-badge .uid { font-size: 11px; color: var(--muted); margin-top: 2px; }
+        .btn-logout { width: 100%; padding: 10px; background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.3); border-radius: 8px; color: var(--error); font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+        .btn-logout:hover { background: rgba(255,77,109,0.2); }
+        .main-content { margin-left: 220px; padding: 32px; max-width: 700px; }
+        .page-title { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 24px; color: var(--text); }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .composer { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 20px; }
+        .composer textarea { width: 100%; background: transparent; border: none; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; resize: none; outline: none; min-height: 70px; }
+        .composer textarea::placeholder { color: var(--muted); }
+        .composer-footer { display: flex; justify-content: flex-end; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .btn-post { padding: 10px 24px; background: linear-gradient(135deg, var(--accent), #9b84ff); border: none; border-radius: 8px; color: white; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
+        .btn-post:hover { opacity: 0.85; }
+        .post-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 18px 20px; margin-bottom: 12px; transition: border-color 0.2s; animation: fadeIn 0.3s ease; }
+        .post-card:hover { border-color: var(--accent); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .post-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .post-author { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); }
+        .post-time { font-size: 11px; color: var(--muted); }
+        .post-content { font-size: 15px; line-height: 1.6; color: var(--text); }
+        .post-actions { display: flex; gap: 8px; margin-top: 12px; }
+        .btn-delete { padding: 6px 14px; background: rgba(255,77,109,0.1); border: 1px solid rgba(255,77,109,0.2); border-radius: 6px; color: var(--error); font-size: 12px; cursor: pointer; transition: all 0.2s; }
+        .btn-delete:hover { background: rgba(255,77,109,0.2); }
+        .section-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; }
+        .section-card h3 { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+        .input-row { display: flex; gap: 10px; }
+        .input-row input { flex: 1; padding: 11px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.2s; }
+        .input-row input:focus { border-color: var(--accent); }
+        .btn-action { padding: 11px 20px; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+        .btn-follow { background: rgba(124,106,255,0.15); color: var(--accent); border: 1px solid rgba(124,106,255,0.3); }
+        .btn-follow:hover { background: rgba(124,106,255,0.25); }
+        .btn-unfollow { background: rgba(255,77,109,0.1); color: var(--error); border: 1px solid rgba(255,77,109,0.2); }
+        .btn-unfollow:hover { background: rgba(255,77,109,0.2); }
+        .btn-neutral { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+        .btn-neutral:hover { border-color: var(--accent); }
+        .profile-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-top: 16px; }
+        .profile-card .pname { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 700; color: var(--text); }
+        .profile-card .pemail { color: var(--muted); font-size: 14px; margin-top: 4px; }
+        .profile-card .pid { display: inline-block; margin-top: 10px; padding: 4px 10px; background: rgba(124,106,255,0.15); color: var(--accent); border-radius: 20px; font-size: 12px; font-weight: 500; }
+        .followers-result { margin-top: 16px; padding: 16px; background: var(--surface2); border-radius: 10px; border: 1px solid var(--border); font-size: 15px; color: var(--muted); }
+        .followers-result span { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--accent); display: block; }
+        .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+        .empty-state .icon { font-size: 36px; margin-bottom: 10px; }
+        .refresh-btn { padding: 8px 16px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 13px; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; }
+        .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+    </style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- AUTH PAGE -->
+<div id="authPage">
+    <div class="auth-box">
+        <div class="brand">
+            <h1>MINI Social</h1>
+            <p>Connect. Share. Follow.</p>
+        </div>
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+            <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+        </div>
+        <div id="loginForm" class="auth-form">
+            <div class="form-group"><label>Email</label><input type="email" id="login_email" placeholder="you@example.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="login_password" placeholder="••••••••"></div>
+            <button class="btn-primary" onclick="login()">Login →</button>
+        </div>
+        <div id="registerForm" class="auth-form" style="display:none;">
+            <div class="form-group"><label>Username</label><input type="text" id="reg_username" placeholder="yourname"></div>
+            <div class="form-group"><label>Email</label><input type="email" id="reg_email" placeholder="you@example.com"></div>
+            <div class="form-group"><label>Password</label><input type="password" id="reg_password" placeholder="••••••••"></div>
+            <button class="btn-primary" onclick="register()">Create Account →</button>
+        </div>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appPage">
+    <div class="sidebar">
+        <div class="sidebar-brand">Pulse</div>
+        <button class="nav-item active" onclick="showPanel('feed', this)"><span class="nav-icon">🏠</span> Feed</button>
+        <button class="nav-item" onclick="showPanel('myposts', this)"><span class="nav-icon">📝</span> My Posts</button>
+        <button class="nav-item" onclick="showPanel('follow', this)"><span class="nav-icon">👥</span> Follow</button>
+        <button class="nav-item" onclick="showPanel('profile', this)"><span class="nav-icon">🔍</span> Profile</button>
+        <div class="sidebar-footer">
+            <div class="user-badge">
+                <div class="name" id="sidebarUsername">—</div>
+                <div class="uid" id="sidebarUid">ID: —</div>
+            </div>
+            <button class="btn-logout" onclick="logout()">Sign Out</button>
+        </div>
+    </div>
+    <div class="main-content">
+        <!-- FEED -->
+        <div id="panel_feed" class="tab-panel active">
+            <div class="page-title">Feed</div>
+            <div class="composer">
+                <textarea id="post_content" placeholder="What's on your mind?"></textarea>
+                <div class="composer-footer"><button class="btn-post" onclick="createPost()">Publish</button></div>
+            </div>
+            <button class="refresh-btn" onclick="getFeed()">↻ Refresh</button>
+            <div id="feedList"></div>
+        </div>
+        <!-- MY POSTS -->
+        <div id="panel_myposts" class="tab-panel">
+            <div class="page-title">My Posts</div>
+            <button class="refresh-btn" onclick="getMyPosts()">↻ Load Posts</button>
+            <div id="myPostsList"></div>
+        </div>
+        <!-- FOLLOW -->
+        <div id="panel_follow" class="tab-panel">
+            <div class="page-title">Follow</div>
+            <div class="section-card">
+                <h3>Follow / Unfollow User</h3>
+                <div class="input-row">
+                    <input type="number" id="follow_user_id" placeholder="Enter User ID">
+                    <button class="btn-action btn-follow" onclick="followUser()">Follow</button>
+                    <button class="btn-action btn-unfollow" onclick="unfollowUser()">Unfollow</button>
+                </div>
+            </div>
+            <div class="section-card">
+                <h3>Check Followers</h3>
+                <div class="input-row">
+                    <input type="number" id="followers_user_id" placeholder="Enter User ID">
+                    <button class="btn-action btn-neutral" onclick="getFollowers()">Check</button>
+                </div>
+                <div id="followersList"></div>
+            </div>
+        </div>
+        <!-- PROFILE -->
+        <div id="panel_profile" class="tab-panel">
+            <div class="page-title">Profile</div>
+            <div class="section-card">
+                <h3>Search User</h3>
+                <div class="input-row">
+                    <input type="number" id="profile_user_id" placeholder="Enter User ID">
+                    <button class="btn-action btn-neutral" onclick="getProfile()">Search</button>
+                </div>
+                <div id="profileData"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = "http://localhost:8000";
+    let token = "", currentUserId = null, currentUsername = "";
+
+    function toast(msg, type = "success") {
+        const t = document.getElementById("toast");
+        t.textContent = msg; t.className = `show ${type}`;
+        setTimeout(() => t.className = "", 3000);
+    }
+
+    function switchAuthTab(tab) {
+        document.querySelectorAll(".auth-tab").forEach((t, i) => {
+            t.classList.toggle("active", (i === 0 && tab === "login") || (i === 1 && tab === "register"));
+        });
+        document.getElementById("loginForm").style.display = tab === "login" ? "block" : "none";
+        document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
+    }
+
+    function showPanel(name, el) {
+        document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+        document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+        document.getElementById("panel_" + name).classList.add("active");
+        el.classList.add("active");
+        if (name === "feed") getFeed();
+        if (name === "myposts") getMyPosts();
+    }
+
+    async function register() {
+        const username = document.getElementById("reg_username").value.trim();
+        const email = document.getElementById("reg_email").value.trim();
+        const password = document.getElementById("reg_password").value;
+        if (!username || !email || !password) return toast("Fill all fields", "error");
+        try {
+            const res = await fetch(`${API}/auth/register`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, email, password })
+            });
+            const data = await res.json();
+            if (res.ok) { toast("Account created! Please login."); switchAuthTab("login"); }
+            else toast(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail), "error");
+        } catch { toast("Cannot connect to server. Is it running?", "error"); }
+    }
+
+    async function login() {
+        const email = document.getElementById("login_email").value.trim();
+        const password = document.getElementById("login_password").value;
+        if (!email || !password) return toast("Fill all fields", "error");
+        try {
+            const res = await fetch(`${API}/auth/login`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                token = data.access_token;
+                await fetchCurrentUser(email);
+                document.getElementById("authPage").style.display = "none";
+                document.getElementById("appPage").style.display = "block";
+                toast("Welcome back!"); getFeed();
+            } else toast(typeof data.detail === "string" ? data.detail : "Login failed", "error");
+        } catch { toast("Cannot connect to server. Is it running?", "error"); }
+    }
+
+    async function fetchCurrentUser(email) {
+        for (let i = 1; i <= 50; i++) {
+            try {
+                const res = await fetch(`${API}/auth/users/${i}`);
+                const data = await res.json();
+                if (res.ok && data.email === email) {
+                    currentUserId = data.id; currentUsername = data.username;
+                    document.getElementById("sidebarUsername").textContent = data.username;
+                    document.getElementById("sidebarUid").textContent = `ID: ${data.id}`;
+                    break;
+                }
+            } catch {}
+        }
+    }
+
+    function logout() {
+        token = ""; currentUserId = null;
+        document.getElementById("authPage").style.display = "flex";
+        document.getElementById("appPage").style.display = "none";
+        toast("Logged out!");
+    }
+
+    async function createPost() {
+        const content = document.getElementById("post_content").value.trim();
+        if (!content) return toast("Write something first", "error");
+        if (!currentUserId) return toast("User ID not found", "error");
+        try {
+            const res = await fetch(`${API}/posts/?user_id=${currentUserId}`, {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content })
+            });
+            const data = await res.json();
+            if (res.ok) { toast("Post published!"); document.getElementById("post_content").value = ""; getFeed(); }
+            else toast(JSON.stringify(data.detail), "error");
+        } catch { toast("Error creating post", "error"); }
+    }
+
+    async function getFeed() {
+        if (!currentUserId) return;
+        try {
+            const res = await fetch(`${API}/feed/?user_id=${currentUserId}`);
+            const data = await res.json();
+            const c = document.getElementById("feedList");
+            if (!data.length) { c.innerHTML = `<div class="empty-state"><div class="icon">🌐</div>No posts yet. Follow someone or create a post!</div>`; return; }
+            c.innerHTML = data.map(p => `<div class="post-card"><div class="post-meta"><span class="post-author">User #${p.user_id}</span><span class="post-time">Post #${p.id}</span></div><div class="post-content">${escapeHtml(p.content)}</div></div>`).join("");
+        } catch { toast("Error loading feed", "error"); }
+    }
+
+    async function getMyPosts() {
+        if (!currentUserId) return;
+        try {
+            const res = await fetch(`${API}/posts/${currentUserId}`);
+            const data = await res.json();
+            const c = document.getElementById("myPostsList");
+            if (!data.length) { c.innerHTML = `<div class="empty-state"><div class="icon">📝</div>You haven't posted anything yet.</div>`; return; }
+            c.innerHTML = data.map(p => `<div class="post-card"><div class="post-meta"><span class="post-author">${escapeHtml(currentUsername)}</span><span class="post-time">Post #${p.id}</span></div><div class="post-content">${escapeHtml(p.content)}</div><div class="post-actions"><button class="btn-delete" onclick="deletePost(${p.id})">🗑 Delete</button></div></div>`).join("");
+        } catch { toast("Error loading posts", "error"); }
+    }
+
+    async function deletePost(postId) {
+        try {
+            const res = await fetch(`${API}/posts/${postId}?user_id=${currentUserId}`, { method: "DELETE" });
+            const data = await res.json();
+            if (res.ok) { toast("Post deleted!"); getMyPosts(); }
+            else toast(JSON.stringify(data.detail), "error");
+        } catch { toast("Error deleting post", "error"); }
+    }
+
+    async function followUser() {
+        const uid = document.getElementById("follow_user_id").value;
+        if (!uid) return toast("Enter a User ID", "error");
+        if (parseInt(uid) === currentUserId) return toast("You can't follow yourself!", "error");
+        try {
+            const res = await fetch(`${API}/follow/${uid}?follower_id=${currentUserId}`, { method: "POST" });
+            const data = await res.json();
+            if (res.ok) toast(data.message);
+            else toast(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail), "error");
+        } catch { toast("Error following user", "error"); }
+    }
+
+    async function unfollowUser() {
+        const uid = document.getElementById("follow_user_id").value;
+        if (!uid) return toast("Enter a User ID", "error");
+        try {
+            const res = await fetch(`${API}/follow/${uid}?follower_id=${currentUserId}`, { method: "DELETE" });
+            const data = await res.json();
+            if (res.ok) toast(data.message);
+            else toast(typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail), "error");
+        } catch { toast("Error unfollowing user", "error"); }
+    }
+
+    async function getFollowers() {
+        const uid = document.getElementById("followers_user_id").value;
+        if (!uid) return toast("Enter a User ID", "error");
+        try {
+            const res = await fetch(`${API}/follow/${uid}`);
+            const data = await res.json();
+            document.getElementById("followersList").innerHTML = `<div class="followers-result"><span>${data.followers}</span>Followers for User #${uid}</div>`;
+        } catch { toast("Error fetching followers", "error"); }
+    }
+
+    async function getProfile() {
+        const uid = document.getElementById("profile_user_id").value;
+        if (!uid) return toast("Enter a User ID", "error");
+        try {
+            const res = await fetch(`${API}/auth/users/${uid}`);
+            const data = await res.json();
+            if (res.ok) {
+                document.getElementById("profileData").innerHTML = `<div class="profile-card"><div class="pname">${escapeHtml(data.username)}</div><div class="pemail">${escapeHtml(data.email)}</div><div class="pid">ID: ${data.id}</div></div>`;
+            } else { toast("User not found", "error"); document.getElementById("profileData").innerHTML = ""; }
+        } catch { toast("Error fetching profile", "error"); }
+    }
+
+    function escapeHtml(str) {
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+</script>
+</body>
+</html>

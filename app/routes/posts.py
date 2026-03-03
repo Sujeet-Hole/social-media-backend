@@ -5,6 +5,8 @@ from app.models import Post
 from app.schemas import PostCreate, PostResponse
 import logging
 router = APIRouter()
+import logging
+logger = logging.getLogger(__name__)
 @router.post("/", response_model=PostResponse)
 def create_post(post: PostCreate, user_id: int, db: Session = Depends(get_db)):
     logger.info(f"Creating post for user: {user_id}")
