@@ -1,13 +1,12 @@
 from locust import HttpUser, task, between
 
-
 class SocialMediaUser(HttpUser):
 
     wait_time = between(1, 3)
 
     @task(5)
     def get_posts(self):
-        self.client.get("/posts/1")
+        self.client.get("/posts/?page=1&limit=10")
 
     @task(4)
     def get_feed(self):

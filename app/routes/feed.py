@@ -10,7 +10,6 @@ import os
 
 router = APIRouter()
 
-# Railway Redis
 redis_client = redis.from_url(
     os.getenv("REDIS_URL"),
     decode_responses=True
@@ -41,8 +40,18 @@ def get_feed(user_id: int, db: Session = Depends(get_db)):
 
     following_ids = [f.following_id for f in following]
 
+    # Cache empty feed also
     if not following_ids:
         logger.warning(f"User {user_id} is not following anyone")
+
+        redis_client.setex(
+            cache_key,
+            300,
+            json.dumps([])
+        )
+
+        logger.info(f"Empty feed cached: {cache_key}")
+
         return []
 
     # Fetch posts from DB
