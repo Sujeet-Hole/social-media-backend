@@ -1,0 +1,15 @@
+[33m52ee71f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Add Redis caching for feed
+[33mb0ec8f3[m Add redis package
+[33m75d1ccd[m Add Redis caching for feed endpoint
+[33m1feab55[m update requirements
+[33m8f8223e[m add database debug
+[33m3e9f76e[m Updated README and Docker setup
+[33ma59105b[m FastAPI social media API with Docker
+[33m549aa9f[m update requirements.txt
+[33mba33ca7[m add README
+[33m5990a84[m fix: add logger to posts.py
+[33m0d6dfd1[m complete social media api with logging
+[33m7858a95[m add auth routes - register and login
+[33mb03b0fc[m Setup FastAPI core, database models, and auth utilities
+[33me49ef21[m remove .env from tracking
+[33m9df6ea8[m initial project structure
