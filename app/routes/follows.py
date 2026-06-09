@@ -56,3 +56,7 @@ def get_followers(user_id: int, db: Session = Depends(get_db)):
     followers = db.query(Follow).filter(Follow.following_id == user_id).all()
     logger.info(f"User {user_id} has {len(followers)} followers")
     return {"followers": len(followers), "data": followers}
+
+
+
+
